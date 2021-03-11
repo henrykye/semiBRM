@@ -1,0 +1,25 @@
+Package: semiBRM
+Title: Semiparametric Binary Response Models
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Hyungil",
+           family = "Kye",
+           role = c("aut", "cre"),
+           email = "hkye@economics.rutgers.edu")
+Description: This implements a single-index semiparametric approach to binary
+    response models theorized in Klein and Spady (1993). This is built upon Rcpp
+    along with OpenMP that parallelizes computation of nonparametric conditional
+    expectations.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo
+Imports: 
+    maxLik,
+    matrixStats,
+    Rcpp,
+    RcppArmadillo

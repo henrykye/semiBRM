@@ -42,6 +42,15 @@ library(devtools)
 install_github(repo="hk599/semiBRM")
 ```
 
+### This version was built with:
+
+  - R 4.0.4
+  - rtools40
+  - maxLik 1.4-6
+  - matrixStats 0.58.0
+  - Rcpp 1.0.6
+  - RcppArmadillo 0.10.2.2.0
+
 ## Example
 
 ### Implementation
@@ -89,9 +98,9 @@ Prob_prob <- pnorm(as.vector(probit$coefficients%*%c(1, Xbar)))
 ### Results
 
     #>            true     Semi  Probit
-    #> parm 1:  1.0000   1.1498  1.0940
-    #> parm 2: -0.5000  -0.4925 -0.4913
-    #> prob. :  0.5940   0.5632  0.5860
+    #> parm 1:  1.0000   0.9536  0.9712
+    #> parm 2: -0.5000  -0.4938 -0.5059
+    #> prob. :  0.6217   0.6155  0.6478
 
 ## References
 

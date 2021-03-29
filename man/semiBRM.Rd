@@ -2,36 +2,82 @@
 % Please edit documentation in R/semiBRM.R
 \name{semiBRM}
 \alias{semiBRM}
-\title{Quasi maximum likelihood estimation}
+\alias{semiBRM.default}
+\alias{semiBRM.formula}
+\title{Semiparametric binary response model: Parameter estimation}
 \usage{
-semiBRM(
-  X,
-  Y,
-  r = 1/7.1,
-  cutoff.level = 0.025,
-  num.threads = parallel::detectCores() - 1L,
-  ...
-)
+semiBRM(x, y, ...)
+
+\method{semiBRM}{default}(x, y, r = 1/6.01, tau = 0.025, ...)
+
+\method{semiBRM}{formula}(formula, data, r = 1/6.01, tau = 0.025, ...)
 }
 \arguments{
-\item{X}{a matrix of explanatory variables.}
+\item{x}{a numeric matrix of explanatory variables.}
 
-\item{Y}{an integer vector of binary response outcome}
+\item{y}{a vector of integer, numeric, or factor of binary response outcomes, taking either 1 or 0 only.}
 
-\item{r}{a numeric number that controls the size of Silverman's rule-of-thumb bandwidth, h = sd(x)*N^(-r)}
+\item{...}{further arguments in "\code{\link[maxLik:maxLik]{maxLik::maxLik}}" such as \code{control}.}
 
-\item{cutoff.level}{a numeric number to generate an interior-point indicator}
+\item{r}{a numeric number that controls the size of Silverman's rule-of-thumb bandwidth, \code{h = sd(x)*N^(-r)}.}
 
-\item{num.threads}{an integer number indicating the number of threads to be used. The default is
-parallel::detectCores()-1L}
+\item{tau}{a numeric indicating cut-off levels for trimming in \code{\link[=TrimmingIndicator]{TrimmingIndicator}(X,f)},
+which assigns 1L to the values in \code{X} lying between \code{tau}*100 and (1-\code{tau})*100 -th percentiles and 0L to
+those outside this range.}
 
-\item{...}{further arguments in maxLik::maxLik}
+\item{formula}{a formula describing the model to be fitted..}
+
+\item{data}{a data.frame containing variables in \code{formula}.}
 }
 \value{
-object of class 'maxLik'
+object of class 'semiBRM' similar to that of 'maxLik'
+\itemize{
+\item \code{estimate}: estimated parameter values.
+\item \code{log.likelihood}: log likelihood at the estimates.
+\item \code{gradient}: a gradient vector at the estimates.
+\item \code{hessian}: a hessian matrix at the estimates.
+\item \code{code}: return code as detailed in \code{\link[maxLik:maxLik]{maxLik::maxLik}}.
+\item \code{message}: a short message describing return code.
+\item \code{iter}: the number of iterations performed for numerical optimization.
+\item \code{control}: the optimization control parameters as detailed in \code{\link[maxLik:maxLik]{maxLik::maxLik}}.
+\item \code{model}: the model frame.
+\item \code{r}: the bandwidth parameter for Silverman's rule-of-thumb bandwidth.
+\item \code{trimming.level}: the trimming cutoff level, which is \code{tau} in function argument.
+\item \code{call}: the matched call.
+\item \code{formula}: the formula entered for estimation.
+}
 }
 \description{
-This implements quasi maximum likelihood estimation using "maxLik::maxLik" to find identifiable parameters.
-This runs the estimation twice, where the first estimation is the "pilot" version and the second
-is the main one with interior points searched based on the "index" obtained from the pilot version.
+This implements quasi maximum likelihood estimation using "\code{\link[maxLik:maxLik]{maxLik::maxLik}}"
+to estimate an identifiable  set of parameters. This runs estimation twice, where the first estimation
+is the "pilot" version and the second is the main one with trimming indicator obtained from the "index"
+of the pilot version in place.
+}
+\details{
+This can take as arguments either matrix \code{x} and vector \code{y} or \code{formula} and \code{data} to run
+estimation (see Examples below). The package deploys OpenMP that parallelizes computation of the Nadaraya-Watson
+estimator. The default value of the number of threads is \code{parallel::detectCores()-1L}. To set
+manually, please use \code{\link{set_num_threads}(x)}. If it's set to be 1L, the function doesn't use OpenMP.
+}
+\examples{
+# data generating process
+N <- 1000L
+X1 <- rnorm(N)
+X2 <- (X1 + 2*rnorm(N))/sqrt(5) + 1
+X3 <- rnorm(N)^2/sqrt(2)
+X <- cbind(X1, X2, X3)
+beta <- c(2, 2, -1, -1)
+V <- as.vector(cbind(X, 1)\%*\%beta)
+Y <- ifelse(V >= rnorm(N), 1L, 0L)
+
+# identifiable set of parameters
+ests_true <- c(1, -.5)
+
+# using matrix/vector
+qmle0 <- semiBRM(x = X, y = Y, control = list(iterlim=50))
+
+# using formula and data
+data <- data.frame(Y, X1, X2, X3)
+qmle1 <- semiBRM(Y~X1+X2+X3, data = data, control = list(iterlim=50))
+
 }

@@ -6,39 +6,128 @@
 
 using namespace Rcpp;
 
-// GaussianKerNonpar
-Rcpp::NumericVector GaussianKerNonpar(SEXP Y, SEXP X, SEXP args, SEXP H, int n_cores);
-RcppExport SEXP _semiBRM_GaussianKerNonpar(SEXP YSEXP, SEXP XSEXP, SEXP argsSEXP, SEXP HSEXP, SEXP n_coresSEXP) {
+// GaussianMultivar
+Rcpp::NumericVector GaussianMultivar(const arma::vec& Y, const arma::mat& X, const arma::mat& args, arma::rowvec H);
+RcppExport SEXP _semiBRM_GaussianMultivar(SEXP YSEXP, SEXP XSEXP, SEXP argsSEXP, SEXP HSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type X(XSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type args(argsSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type H(HSEXP);
-    Rcpp::traits::input_parameter< int >::type n_cores(n_coresSEXP);
-    rcpp_result_gen = Rcpp::wrap(GaussianKerNonpar(Y, X, args, H, n_cores));
+    Rcpp::traits::input_parameter< const arma::vec& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type args(argsSEXP);
+    Rcpp::traits::input_parameter< arma::rowvec >::type H(HSEXP);
+    rcpp_result_gen = Rcpp::wrap(GaussianMultivar(Y, X, args, H));
     return rcpp_result_gen;
 END_RCPP
 }
-// GaussianKerNonparLeaveOneOut
-Rcpp::NumericVector GaussianKerNonparLeaveOneOut(SEXP Y, SEXP X, SEXP H, int n_cores);
-RcppExport SEXP _semiBRM_GaussianKerNonparLeaveOneOut(SEXP YSEXP, SEXP XSEXP, SEXP HSEXP, SEXP n_coresSEXP) {
+// GaussianMultivarOMP
+Rcpp::NumericVector GaussianMultivarOMP(const arma::vec& Y, const arma::mat& X, const arma::mat& args, arma::rowvec H, int n_cores);
+RcppExport SEXP _semiBRM_GaussianMultivarOMP(SEXP YSEXP, SEXP XSEXP, SEXP argsSEXP, SEXP HSEXP, SEXP n_coresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type X(XSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type H(HSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type args(argsSEXP);
+    Rcpp::traits::input_parameter< arma::rowvec >::type H(HSEXP);
     Rcpp::traits::input_parameter< int >::type n_cores(n_coresSEXP);
-    rcpp_result_gen = Rcpp::wrap(GaussianKerNonparLeaveOneOut(Y, X, H, n_cores));
+    rcpp_result_gen = Rcpp::wrap(GaussianMultivarOMP(Y, X, args, H, n_cores));
+    return rcpp_result_gen;
+END_RCPP
+}
+// GaussianMultivarLeaveOneOut
+Rcpp::NumericVector GaussianMultivarLeaveOneOut(const arma::vec& Y, const arma::mat& X, arma::rowvec H);
+RcppExport SEXP _semiBRM_GaussianMultivarLeaveOneOut(SEXP YSEXP, SEXP XSEXP, SEXP HSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::rowvec >::type H(HSEXP);
+    rcpp_result_gen = Rcpp::wrap(GaussianMultivarLeaveOneOut(Y, X, H));
+    return rcpp_result_gen;
+END_RCPP
+}
+// GaussianMultivarLeaveOneOutOMP
+Rcpp::NumericVector GaussianMultivarLeaveOneOutOMP(const arma::vec& Y, const arma::mat& X, arma::rowvec H, int n_cores);
+RcppExport SEXP _semiBRM_GaussianMultivarLeaveOneOutOMP(SEXP YSEXP, SEXP XSEXP, SEXP HSEXP, SEXP n_coresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::rowvec >::type H(HSEXP);
+    Rcpp::traits::input_parameter< int >::type n_cores(n_coresSEXP);
+    rcpp_result_gen = Rcpp::wrap(GaussianMultivarLeaveOneOutOMP(Y, X, H, n_cores));
+    return rcpp_result_gen;
+END_RCPP
+}
+// GaussianUnivar
+Rcpp::NumericVector GaussianUnivar(const arma::vec& Y, const arma::vec& X, const arma::vec& args, const double& H);
+RcppExport SEXP _semiBRM_GaussianUnivar(SEXP YSEXP, SEXP XSEXP, SEXP argsSEXP, SEXP HSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type args(argsSEXP);
+    Rcpp::traits::input_parameter< const double& >::type H(HSEXP);
+    rcpp_result_gen = Rcpp::wrap(GaussianUnivar(Y, X, args, H));
+    return rcpp_result_gen;
+END_RCPP
+}
+// GaussianUnivarOMP
+Rcpp::NumericVector GaussianUnivarOMP(const arma::vec& Y, const arma::vec& X, const arma::vec& args, const double& H, int n_cores);
+RcppExport SEXP _semiBRM_GaussianUnivarOMP(SEXP YSEXP, SEXP XSEXP, SEXP argsSEXP, SEXP HSEXP, SEXP n_coresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type args(argsSEXP);
+    Rcpp::traits::input_parameter< const double& >::type H(HSEXP);
+    Rcpp::traits::input_parameter< int >::type n_cores(n_coresSEXP);
+    rcpp_result_gen = Rcpp::wrap(GaussianUnivarOMP(Y, X, args, H, n_cores));
+    return rcpp_result_gen;
+END_RCPP
+}
+// GaussianUnivarLeaveOneOut
+Rcpp::NumericVector GaussianUnivarLeaveOneOut(const arma::vec& Y, const arma::vec& X, const double& H);
+RcppExport SEXP _semiBRM_GaussianUnivarLeaveOneOut(SEXP YSEXP, SEXP XSEXP, SEXP HSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const double& >::type H(HSEXP);
+    rcpp_result_gen = Rcpp::wrap(GaussianUnivarLeaveOneOut(Y, X, H));
+    return rcpp_result_gen;
+END_RCPP
+}
+// GaussianUnivarLeaveOneOutOMP
+Rcpp::NumericVector GaussianUnivarLeaveOneOutOMP(const arma::vec& Y, const arma::vec& X, const double& H, int n_cores);
+RcppExport SEXP _semiBRM_GaussianUnivarLeaveOneOutOMP(SEXP YSEXP, SEXP XSEXP, SEXP HSEXP, SEXP n_coresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const double& >::type H(HSEXP);
+    Rcpp::traits::input_parameter< int >::type n_cores(n_coresSEXP);
+    rcpp_result_gen = Rcpp::wrap(GaussianUnivarLeaveOneOutOMP(Y, X, H, n_cores));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_semiBRM_GaussianKerNonpar", (DL_FUNC) &_semiBRM_GaussianKerNonpar, 5},
-    {"_semiBRM_GaussianKerNonparLeaveOneOut", (DL_FUNC) &_semiBRM_GaussianKerNonparLeaveOneOut, 4},
+    {"_semiBRM_GaussianMultivar", (DL_FUNC) &_semiBRM_GaussianMultivar, 4},
+    {"_semiBRM_GaussianMultivarOMP", (DL_FUNC) &_semiBRM_GaussianMultivarOMP, 5},
+    {"_semiBRM_GaussianMultivarLeaveOneOut", (DL_FUNC) &_semiBRM_GaussianMultivarLeaveOneOut, 3},
+    {"_semiBRM_GaussianMultivarLeaveOneOutOMP", (DL_FUNC) &_semiBRM_GaussianMultivarLeaveOneOutOMP, 4},
+    {"_semiBRM_GaussianUnivar", (DL_FUNC) &_semiBRM_GaussianUnivar, 4},
+    {"_semiBRM_GaussianUnivarOMP", (DL_FUNC) &_semiBRM_GaussianUnivarOMP, 5},
+    {"_semiBRM_GaussianUnivarLeaveOneOut", (DL_FUNC) &_semiBRM_GaussianUnivarLeaveOneOut, 3},
+    {"_semiBRM_GaussianUnivarLeaveOneOutOMP", (DL_FUNC) &_semiBRM_GaussianUnivarLeaveOneOutOMP, 4},
     {NULL, NULL, 0}
 };
 

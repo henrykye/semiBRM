@@ -41,10 +41,8 @@ install_github(repo="hk599/semiBRM")
 * R 4.0.4
 * rtools40 
 * maxLik 1.4-6
-* matrixStats 0.58.0
 * Rcpp 1.0.6
 * RcppArmadillo 0.10.2.2.0
-
 
 
 

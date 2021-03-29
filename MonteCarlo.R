@@ -1,4 +1,4 @@
-library(semiBRM)
+# library(semiBRM)
 
 hhmmss <- function(seconds){
     hh = seconds%/%3600
@@ -111,11 +111,24 @@ S <- 300L
 
 N <- 1200L
 beta <- c(2, 2, -1, -1)
-Xbar <- t(c(0, 1, 1/sqrt(2)))
+Xbar0 <- Xbar1 <- t(c(0, 1, 1/sqrt(2)))
+Xbar1[,1L] <- Xbar1[,1L] + 1
 
-probs_semi <- rep(NaN, S)
-probs_boot <- rep(NaN, S)
-stder_boot <- rep(NaN, S)
+prob0 <- pnorm(as.vector(cbind(Xbar0, 1)%*%beta))
+prob1 <- pnorm(as.vector(cbind(Xbar1, 1)%*%beta))
+me.true <- prob1 - prob0
+
+probs_coef_semi <- rep(NaN, S)
+probs_coef_boot <- rep(NaN, S)
+probs_stde_boot <- rep(NaN, S)
+probs_conf_boot <- matrix(NaN, S, 2)
+
+probs_stde_pack <- rep(NaN, S)
+probs_conf_pack <- matrix(NaN, S, 2)
+
+me_coef_semi <- rep(NaN, S)
+me_coef_boot <- rep(NaN, S)
+me_stde_boot <- rep(NaN)
 
 start <- proc.time()
 for (s in seq_len(S)){
@@ -127,37 +140,87 @@ for (s in seq_len(S)){
     V <- as.vector(cbind(X, 1)%*%beta)
     Y <- ifelse(V >= rnorm(N), 1L, 0L)
 
+    # parameter fit
     qmle <- semiBRM(x = X, y = Y, control = list(iterlim=50))
 
-    prob.true <- pnorm(as.vector(cbind(Xbar, 1)%*%beta))
-    prob.semi <- predict(qmle, newdata = Xbar)
+    # point estimation of conditional probability
+    prob.semi <- predict(qmle, newdata = Xbar0, boot.se = TRUE)
 
+    # point estimation of marginal effect as difference
     Vhat <- X[,1L] + as.vector(X[,-1L]%*%coef(qmle))
-    Vnew <- Xbar[,1L] + as.vector(Xbar[,-1L]%*%coef(qmle))
-    h <- sd(Vhat)*N^(-1/5)
+    h <- sd(Vhat)*1.06*N^(-1/5)
+
+    V0 <- Xbar0[,1L] + as.vector(Xbar0[,-1L]%*%coef(qmle))
+    V1 <- Xbar1[,1L] + as.vector(Xbar1[,-1L]%*%coef(qmle))
+
+    me.semi <- GaussianNadarayaWatsonEstimator(Vhat, Y, h, V1) -
+        GaussianNadarayaWatsonEstimator(Vhat, Y, h, V0)
 
     ## semiparametric bootstrapping
     B <- 500L
     prob_boot <- rep(NaN, B)
+    me_boot <- rep(NaN, B)
     for (b in seq_len(B)){
-        Y.boot <- ifelse(runif(N) <= prob.semi$prob, 1L, 0L)
-        prob_boot[b] <- GaussianNadarayaWatsonEstimator(Vhat, Y.boot, h, Vnew)
+
+        prob0.semi <- predict(qmle, newdata = Xbar0)$prob
+        prob1.semi <- predict(qmle, newdata = Xbar1)$prob
+
+        Y0.boot <- ifelse(runif(N) <= prob0.semi, 1L, 0L)
+        Y1.boot <- ifelse(runif(N) <= prob1.semi, 1L, 0L)
+
+        prob0.boot <- GaussianNadarayaWatsonEstimator(Vhat, Y0.boot, h, V0)
+        prob1.boot <- GaussianNadarayaWatsonEstimator(Vhat, Y1.boot, h, V1)
+
+        prob_boot[b] <- prob0.boot
+        me_boot[b] <- prob1.boot - prob0.boot
     }
 
-    probs_semi[s] <- prob.semi$prob
-    probs_boot[s] <- mean(prob_boot)
-    stder_boot[s] <- sd(prob_boot)
+    probs_coef_semi[s] <- prob.semi$prob
+    probs_coef_boot[s] <- mean(prob_boot)
+    probs_stde_boot[s] <- sd(prob_boot)
+    probs_conf_boot[s,] <- quantile(prob_boot, c(0.025, 0.975))
+
+    probs_stde_pack[s] <- prob.semi$boot.se
+    probs_conf_pack[s,] <- prob.semi$boot.ci[1L,]
+
+    me_coef_semi[s] <- me.semi
+    me_coef_boot[s] <- mean(me_boot)
+    me_stde_boot[s] <- sd(me_boot)
+
 
     cat(sprintf("progress = %03d/%03d done (elapsed = %s)\r", s, S, hhmmss( (proc.time()-start)[3L] )))
     if (s == S) cat("\n");
 }
 
-prob.true
-mean(probs_semi)
-mean(probs_boot)
+prob0
+mean(probs_coef_semi-prob0)
+mean(probs_coef_semi)
+mean(probs_coef_boot)
 
-sd(probs_semi)
-mean(stder_boot)
+sd(probs_coef_semi)
+mean(probs_stde_boot)
+mean(probs_stde_pack)
+
+colMeans(probs_conf_boot)
+colMeans(probs_conf_pack)
+
+me.true
+mean(me_coef_semi-me.true)
+mean(me_coef_semi)
+mean(me_coef_boot)
+
+sd(me_coef_semi)
+mean(me_stde_boot)
+
+
+
+# parameter fit
+qmle <- semiBRM(x = X, y = Y, control = list(iterlim=50))
+
+# point estimation of conditional probability
+prob.semi_test <- predict(qmle, newdata = X[1:5,], boot.se = TRUE)
+
+prob.semi_insm <- predict(qmle, boot.se = TRUE)
 
 
 

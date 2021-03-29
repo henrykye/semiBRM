@@ -24,7 +24,7 @@ boundaries into zeros. If \code{trimming = TRUE}, then the trimming indicator is
 the given 'semiBRM' object.}
 }
 \value{
-a vector or matrix of marginal effects, standard errors, t-values, and p-values.
+a vector or matrix of marginal effects and standard errors.
 }
 \description{
 This computes marginal effects with respect to a chosen explanatory variable

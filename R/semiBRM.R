@@ -169,7 +169,7 @@ semiBRM.default <- function(x, y, r = 1/6.01, tau = 0.025, ...)
   logLik <- function(parms)
   {
     v <- x[,1L] + as.vector(x[,-1L]%*%parms)
-    h <- stats::sd(v)*N^(-r)
+    h <- stats::sd(v)*1.06*N^(-r)
 
     prob <- GaussianNadarayaWatsonEstimator(v, y, h)
 
@@ -250,7 +250,7 @@ semiBRM.formula <- function(formula, data, r = 1/6.01, tau = 0.025, ...)
 fitted.semiBRM <- function(object, ...)
 {
   vhat <- object$model[,2L] + as.vector(as.matrix(object$model[,-c(1L,2L)])%*%object$estimate)
-  h <- stats::sd(vhat)*length(vhat)^(-1/5)
+  h <- stats::sd(vhat)*1.06*length(vhat)^(-1/5)
 
   GaussianNadarayaWatsonEstimator(vhat, object$model[,1L], h)
 }
@@ -263,25 +263,43 @@ fitted.semiBRM <- function(object, ...)
 #'
 #' @param object a fitted 'semiBRM' object.
 #' @param newdata a data.frame or matrix at which conditional probabilities are computed.
+#' @param boot.se a logical indicating whether to report standard errors and confidence intervals.
+#' If \code{boot.se = TRUE}, it calculates standard errors pointwise from semiparametric bootstrapping.
+#' @param ci.level a numeric representing bootstrap confidence intervals. This is useful only when
+#' \code{boot.se = TRUE}.
+#' @param nboot an integer indicating the number of bootstrap replications. This is useful only when
+#' \code{boot.se = TRUE}.
 #' @param ... further arguments (currently ignored).
 #'
-#' @return a list with components:
+#' @return
+#'  If \code{boot.se = FALSE}, then it will return a list with the following components:
 #'
 #' | prob | predictions.|
 #' | ---- | ----------- |
-#' | non.endpoint | taking \code{TRUE} if estimated probabilities are evaluated at non-endpoints and \code{FALSE} otherwise. |
+#' | non.endpoint | taking \code{TRUE} if estimated probabilities are evaluated at points away from boundaries and \code{FALSE} otherwise. |
+#'
+#' If \code{boot.se = TRUE}, then it will return a list with the following components:
+#'
+#' | prob | predictions.|
+#' | ---- | ----------- |
+#' | boot.se | semiparametric bootstrap standard errors. |
+#' | boot.ci | semiparametric bootstrap confidence intervals. |
+#' | non.endpoint | taking \code{TRUE} if estimated probabilities are evaluated at points away from boundaries and \code{FALSE} otherwise. |
 #'
 #' @rdname predict
 #' @export
-predict.semiBRM <- function(object, newdata = NULL, ...)
+predict.semiBRM <- function(object, newdata = NULL, boot.se = FALSE, ci.level = 0.95, nboot = 300L, ...)
 {
   if (is.null(newdata)){
 
-    output <- fitted.semiBRM(object)
+    semi_prob <- fitted.semiBRM(object)
+    vhat <- object$model[,2L] + as.vector(as.matrix(object$model[,-c(1L,2L)])%*%object$estimate)
+    trimming <- TrimmingIndicator(vhat, object$trimming.level)
 
-    trimming <- TrimmingIndicator(
-      object$model[,2L] + as.vector(as.matrix(object$model[,-c(1L,2L)])%*%object$estimate),
-      object$trimming.level)
+    if (boot.se == TRUE){
+      N <- length(vhat)
+      h <- stats::sd(vhat)*1.06*N^(-1/5)
+    }
 
   }else{
 
@@ -296,15 +314,62 @@ predict.semiBRM <- function(object, newdata = NULL, ...)
 
     vnew <- args[,1L] + as.vector(args[,-1L]%*%object$estimate)
     vhat <- object$model[,2L] + as.vector(as.matrix(object$model[,-c(1L,2L)])%*%object$estimate)
-    h <- stats::sd(vhat)*length(vhat)^(-1/5)
 
-    output <- GaussianNadarayaWatsonEstimator(vhat, object$model[,1L], h, vnew)
+    N <- length(vhat)
+    h <- stats::sd(vhat)*1.06*N^(-1/5)
+
+    semi_prob <- GaussianNadarayaWatsonEstimator(vhat, object$model[,1L], h, vnew)
 
     bounds <- stats::quantile(vhat, c(object$trimming.level, 1-object$trimming.level))
     trimming <- ifelse(bounds[1L] < vnew & vnew < bounds[2L], 1L, 0L)
   }
 
-  list("prob" = output, "non.endpoint" = as.logical(trimming))
+  if (boot.se == TRUE){
+
+    # turn off multithreading temporarily
+    cur_num_threads <- get_num_threads()
+    set_num_threads(1L)
+
+    alpha <- (1-ci.level)/2
+    Nargs <- length(semi_prob)
+
+    boot_se <- rep(NaN, Nargs)
+    boot_ci <- matrix(NaN, nrow = Nargs, ncol = 2L)
+    colnames(boot_ci) <- c("lower", "upper")
+
+    for (i in seq_len(Nargs)){
+
+      y_boot <- matrix(ifelse(stats::runif(N*nboot) <= semi_prob[i], 1, 0), nrow = N, ncol = nboot)
+
+      prob_boot <- rep(NaN, nboot)
+      for (b in seq_len(nboot)){
+
+        if (is.null(newdata)){
+          prob_boot[b] <- GaussianNadarayaWatsonEstimator(vhat[-i], y_boot[-i,b], h, vhat[i])
+        }else{
+          prob_boot[b] <- GaussianNadarayaWatsonEstimator(vhat, y_boot[,b], h, vnew[i])
+        }
+      }
+
+      boot_se[i] <-stats::sd(prob_boot)
+      boot_ci[i,] <-stats::quantile(prob_boot, c(alpha, 1-alpha))
+    }
+
+    output <- list("prob" = semi_prob,
+                   "boot.se" = boot_se,
+                   "boot.ci" = boot_ci,
+                   "non.endpoint" = as.logical(trimming))
+
+    # restore thread setting
+    set_num_threads(cur_num_threads)
+
+  }else{
+    output <- list("prob" = semi_prob,
+                   "non.endpoint" = as.logical(trimming))
+
+  }
+
+  output
 }
 
 

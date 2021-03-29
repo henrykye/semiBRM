@@ -153,7 +153,7 @@ GaussianNadarayaWatsonEstimator <- function(x, y, h, args = NULL)
 #' if \code{p.cutoffs = c(1/4, 2/4, 3/4)}, it will return quartile marginal effects over the four
 #' quartile groups.
 #'
-#' @return a vector or matrix of marginal effects, standard errors, t-values, and p-values.
+#' @return a vector or matrix of marginal effects and standard errors.
 #' @export
 MarginalEffects <- function(fit, variable, delta, p.cutoffs = NULL, trimming = FALSE)
 {
@@ -170,7 +170,7 @@ MarginalEffects <- function(fit, variable, delta, p.cutoffs = NULL, trimming = F
   v1 <- x1[,1L] + as.vector(x1[,-1L]%*%fit$estimate)
 
   N <- nrow(x1)
-  h <- stats::sd(v0)*N^(-1/5)
+  h <- stats::sd(v0)*1.06*N^(-1/5)
 
   prob0 <- GaussianNadarayaWatsonEstimator(v0, fit$model[,1L], h)
   prob1 <- GaussianNadarayaWatsonEstimator(v0, fit$model[,1L], h, v1)
@@ -185,11 +185,7 @@ MarginalEffects <- function(fit, variable, delta, p.cutoffs = NULL, trimming = F
 
     marg.eff <- mean(me)
     std.err <- stats::sd(me)/sqrt(N)
-
-    t.value <- round(marg.eff/std.err, 2)
-    p.value <- round(2*stats::pnorm(-abs(t.value)), 4)
-
-    output <- c("Marg.Eff" = marg.eff, "Std.Err" = std.err, "t.value" = t.value, "p.value" = p.value)
+    output <- c("Marg.Eff" = marg.eff, "Std.Err" = std.err)
 
   }else{
 
@@ -206,9 +202,9 @@ MarginalEffects <- function(fit, variable, delta, p.cutoffs = NULL, trimming = F
       }
     }
 
-    output <- matrix(NaN, nrow = n_group, ncol = 4L)
+    output <- matrix(NaN, nrow = n_group, ncol = 2L)
     rownames(output) <- paste0("G", 1L:n_group)
-    colnames(output) <- c("Marg.Eff", "Std.Err", "t.value", "p.value")
+    colnames(output) <- c("Marg.Eff", "Std.Err")
 
     for (g in seq_len(n_group)){
 
@@ -219,10 +215,7 @@ MarginalEffects <- function(fit, variable, delta, p.cutoffs = NULL, trimming = F
       var <- sum( ((me-marg.eff)^2)[g_target==1L] ) / (g_N-1)
       std.err <- sqrt(var/g_N)
 
-      t.value <- round(marg.eff/std.err, 2)
-      p.value <- round(2*stats::pnorm(-abs(t.value)), 6)
-
-      output[g,] <- c(marg.eff, std.err, t.value, p.value)
+      output[g,] <- c(marg.eff, std.err)
     }
 
   }

@@ -4,19 +4,43 @@
 \alias{predict.semiBRM}
 \title{Predict semiparametric conditional probability}
 \usage{
-\method{predict}{semiBRM}(object, newdata = NULL, ...)
+\method{predict}{semiBRM}(
+  object,
+  newdata = NULL,
+  boot.se = FALSE,
+  ci.level = 0.95,
+  nboot = 300L,
+  ...
+)
 }
 \arguments{
 \item{object}{a fitted 'semiBRM' object.}
 
 \item{newdata}{a data.frame or matrix at which conditional probabilities are computed.}
 
+\item{boot.se}{a logical indicating whether to report standard errors and confidence intervals.
+If \code{boot.se = TRUE}, it calculates standard errors pointwise from semiparametric bootstrapping.}
+
+\item{ci.level}{a numeric representing bootstrap confidence intervals. This is useful only when
+\code{boot.se = TRUE}.}
+
+\item{nboot}{an integer indicating the number of bootstrap replications. This is useful only when
+\code{boot.se = TRUE}.}
+
 \item{...}{further arguments (currently ignored).}
 }
 \value{
-a list with components:\tabular{ll}{
+If \code{boot.se = FALSE}, then it will return a list with the following components:\tabular{ll}{
    prob \tab predictions. \cr
-   non.endpoint \tab taking \code{TRUE} if estimated probabilities are evaluated at non-endpoints and \code{FALSE} otherwise. \cr
+   non.endpoint \tab taking \code{TRUE} if estimated probabilities are evaluated at points away from boundaries and \code{FALSE} otherwise. \cr
+}
+
+
+If \code{boot.se = TRUE}, then it will return a list with the following components:\tabular{ll}{
+   prob \tab predictions. \cr
+   boot.se \tab semiparametric bootstrap standard errors. \cr
+   boot.ci \tab semiparametric bootstrap confidence intervals. \cr
+   non.endpoint \tab taking \code{TRUE} if estimated probabilities are evaluated at points away from boundaries and \code{FALSE} otherwise. \cr
 }
 }
 \description{

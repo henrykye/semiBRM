@@ -54,10 +54,19 @@ is the "pilot" version and the second is the main one with trimming indicator ob
 of the pilot version in place.
 }
 \details{
-This can take as arguments either matrix \code{x} and vector \code{y} or \code{formula} and \code{data} to run
-estimation (see Examples below). The package deploys OpenMP that parallelizes computation of the Nadaraya-Watson
-estimator. The default value of the number of threads is \code{parallel::detectCores()-1L}. To set
-manually, please use \code{\link{set_num_threads}(x)}. If it's set to be 1L, the function doesn't use OpenMP.
+This is one of the main functions in the pacakge that performs parameter estimation of
+semiparametric binary response models. It can take as arguments either matrix \code{x} and
+vector \code{y} or \code{formula} and \code{data} to run estimation (see Examples below).
+An numerical solution will be found usnig BFGS method in \code{\link[maxLik:maxLik]{maxLik::maxLik}}.
+
+The Silverman's rule of thumb bandwidth is put in place for the Nadaraya-Watson estimator. The
+default value is \code{h = sd(x)*1.06*N^(-1/6.01)}, which satisfies conditions for consistency and
+asymptotic normality of the parameter estimator.
+
+The package deploys OpenMP that parallelizes computation of the Nadaraya-Watson estimator.
+The default value of the number of threads is \code{parallel::detectCores()-1L}. To change it
+manually, please use \code{\link{set_num_threads}(x)}. If it's set to be 1L, multithreading will
+not be used.
 }
 \examples{
 # data generating process

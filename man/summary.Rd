@@ -15,3 +15,20 @@
 This shows summary of quasi maximum likelihood estimation of the parameters in the fitted
 semiparametric binary response model.
 }
+\examples{
+# data generating process
+N <- 1000L
+X1 <- rnorm(N)
+X2 <- (X1 + 2*rnorm(N))/sqrt(5) + 1
+X3 <- rnorm(N)^2/sqrt(2)
+X <- cbind(X1, X2, X3)
+beta <- c(2, 2, -1, -1)
+V <- as.vector(cbind(X, 1)\%*\%beta)
+Y <- ifelse(V >= rnorm(N), 1L, 0L)
+
+# using matrix/vector
+qmle <- semiBRM(x = X, y = Y, control = list(iterlim=50))
+
+# summary of estimation
+sum_qmle <- summary(qmle)
+}

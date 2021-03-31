@@ -116,10 +116,19 @@ get_num_threads <- function()
 #' }
 #'
 #' @details
-#' This can take as arguments either matrix \code{x} and vector \code{y} or \code{formula} and \code{data} to run
-#' estimation (see Examples below). The package deploys OpenMP that parallelizes computation of the Nadaraya-Watson
-#' estimator. The default value of the number of threads is \code{parallel::detectCores()-1L}. To set
-#' manually, please use \code{\link{set_num_threads}(x)}. If it's set to be 1L, the function doesn't use OpenMP.
+#' This is one of the main functions in the pacakge that performs parameter estimation of
+#' semiparametric binary response models. It can take as arguments either matrix \code{x} and
+#' vector \code{y} or \code{formula} and \code{data} to run estimation (see Examples below).
+#' An numerical solution will be found usnig BFGS method in \code{\link[maxLik:maxLik]{maxLik::maxLik}}.
+#'
+#' The Silverman's rule of thumb bandwidth is put in place for the Nadaraya-Watson estimator. The
+#' default value is \code{h = sd(x)*1.06*N^(-1/6.01)}, which satisfies conditions for consistency and
+#' asymptotic normality of the parameter estimator.
+#'
+#' The package deploys OpenMP that parallelizes computation of the Nadaraya-Watson estimator.
+#' The default value of the number of threads is \code{parallel::detectCores()-1L}. To change it
+#' manually, please use \code{\link{set_num_threads}(x)}. If it's set to be 1L, multithreading will
+#' not be used.
 #'
 #' @examples
 #' # data generating process
@@ -241,16 +250,20 @@ semiBRM.formula <- function(formula, data, r = 1/6.01, tau = 0.025, ...)
 #' the Nadaraya-Watson estimator.
 #'
 #' @param object a fitted 'semiBRM' object.
+#' @param h a numeric of bandwidth size in the Nadaraya-Watson estimator. If not given, it will use
+#' the Silverman's rule of thumb bandwidth, \code{h = sd(x)*1.06*N^(-1/5)}.
 #' @param ... further arguments (currently ignored).
 #'
 #' @return a numeric vector of in-sample pointwise semiparametric conditional probability.
 #'
 #' @rdname fitted
 #' @export
-fitted.semiBRM <- function(object, ...)
+fitted.semiBRM <- function(object, h = NULL, ...)
 {
+  stopifnot(class(object)=="semiBRM")
+
   vhat <- object$model[,2L] + as.vector(as.matrix(object$model[,-c(1L,2L)])%*%object$estimate)
-  h <- stats::sd(vhat)*1.06*length(vhat)^(-1/5)
+  if (is.null(h)) {h <- stats::sd(vhat)*1.06*length(vhat)^(-1/5)}
 
   GaussianNadarayaWatsonEstimator(vhat, object$model[,1L], h)
 }
@@ -269,6 +282,8 @@ fitted.semiBRM <- function(object, ...)
 #' \code{boot.se = TRUE}.
 #' @param nboot an integer indicating the number of bootstrap replications. This is useful only when
 #' \code{boot.se = TRUE}.
+#' @param h a numeric of bandwidth size in the Nadaraya-Watson estimator. If not given, it will use
+#' the Silverman's rule of thumb bandwidth, \code{h = sd(x)*1.06*N^(-1/5)}.
 #' @param ... further arguments (currently ignored).
 #'
 #' @return
@@ -288,8 +303,11 @@ fitted.semiBRM <- function(object, ...)
 #'
 #' @rdname predict
 #' @export
-predict.semiBRM <- function(object, newdata = NULL, boot.se = FALSE, ci.level = 0.95, nboot = 300L, ...)
+predict.semiBRM <- function(object, newdata = NULL, boot.se = FALSE, ci.level = 0.95, nboot = 300L,
+                            h = NULL, ...)
 {
+  stopifnot(class(object)=="semiBRM")
+
   if (is.null(newdata)){
 
     semi_prob <- fitted.semiBRM(object)
@@ -298,7 +316,8 @@ predict.semiBRM <- function(object, newdata = NULL, boot.se = FALSE, ci.level = 
 
     if (boot.se == TRUE){
       N <- length(vhat)
-      h <- stats::sd(vhat)*1.06*N^(-1/5)
+      if (is.null(h)) {h <- stats::sd(vhat)*1.06*length(vhat)^(-1/5)}
+
     }
 
   }else{
@@ -316,7 +335,7 @@ predict.semiBRM <- function(object, newdata = NULL, boot.se = FALSE, ci.level = 
     vhat <- object$model[,2L] + as.vector(as.matrix(object$model[,-c(1L,2L)])%*%object$estimate)
 
     N <- length(vhat)
-    h <- stats::sd(vhat)*1.06*N^(-1/5)
+    if (is.null(h)) {h <- stats::sd(vhat)*1.06*length(vhat)^(-1/5)}
 
     semi_prob <- GaussianNadarayaWatsonEstimator(vhat, object$model[,1L], h, vnew)
 
@@ -388,6 +407,7 @@ predict.semiBRM <- function(object, newdata = NULL, boot.se = FALSE, ci.level = 
 #' @export
 vcov.semiBRM <- function(object, ...)
 {
+  stopifnot(class(object)=="semiBRM")
   -solve(object$hessian)
 }
 
@@ -405,6 +425,7 @@ vcov.semiBRM <- function(object, ...)
 #' @export
 coef.semiBRM <- function(object, ...)
 {
+  stopifnot(class(object)=="semiBRM")
   object$estimate
 }
 
@@ -429,8 +450,26 @@ print.semiBRM <- function(x, ...)
 #'
 #' @rdname summary
 #' @export
+#' @examples
+#' # data generating process
+#' N <- 1000L
+#' X1 <- rnorm(N)
+#' X2 <- (X1 + 2*rnorm(N))/sqrt(5) + 1
+#' X3 <- rnorm(N)^2/sqrt(2)
+#' X <- cbind(X1, X2, X3)
+#' beta <- c(2, 2, -1, -1)
+#' V <- as.vector(cbind(X, 1)%*%beta)
+#' Y <- ifelse(V >= rnorm(N), 1L, 0L)
+#'
+#' # using matrix/vector
+#' qmle <- semiBRM(x = X, y = Y, control = list(iterlim=50))
+#'
+#' # summary of estimation
+#' sum_qmle <- summary(qmle)
 summary.semiBRM <- function(object, ...)
 {
+  stopifnot(class(object)=="semiBRM")
+
   vcov <- -solve(object$hessian)
   se <- sqrt(diag(vcov))
   tval <- object$estimate / se

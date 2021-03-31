@@ -24,6 +24,16 @@ data <- data.frame(Y, X1, X2, X3)
 semi <- semiBRM(Y~X1+X2+X3, data = data, control = list(iterlim=50))
 coefs_semi <- coef(semi)
 
+vhat <- as.vector(X%*%c(1, coef(semi)))
+
+h <- sd(vhat)*1.06*N^(-1/5)
+h1 <- BandwidthGridSearch(semi)
+h2 <- BandwidthGridSearch(semi, criterion = "accuracy")
+h3 <- BandwidthGridSearch(semi, criterion = "precision")
+h4 <- BandwidthGridSearch(semi, criterion = "aic")
+h5 <- BandwidthGridSearch(semi, criterion = "bic")
+
+
 ## Probit: parametric approach
 probit <- glm(Y ~ X1+X2+X3, family = binomial(link = "probit"), data = data)
 coefs_probit <- probit$coefficients[-1L][-1L]/probit$coefficients[-1L][1L]

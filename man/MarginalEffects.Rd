@@ -4,7 +4,14 @@
 \alias{MarginalEffects}
 \title{Marginal effects}
 \usage{
-MarginalEffects(fit, variable, delta, p.cutoffs = NULL, trimming = FALSE)
+MarginalEffects(
+  fit,
+  variable,
+  delta,
+  p.cutoffs = NULL,
+  h = NULL,
+  trimming = FALSE
+)
 }
 \arguments{
 \item{fit}{a fitted 'semiBRM' object.}
@@ -18,6 +25,9 @@ probabilities are computed. Populara choice of \code{delta} would be 1 or standa
 the variable of interest.}
 
 \item{p.cutoffs}{a numeric vector of probabilities (e.g. \code{p.cutoffs = c(1/4, 2/4, 3/4)}).}
+
+\item{h}{a numeric of bandwidth size in the Nadaraya-Watson estimator. If not given, it will use
+the Silverman's rule of thumb bandwidth, \code{h = sd(x)*1.06*N^(-1/5)}.}
 
 \item{trimming}{a logical indicating whether to trim semiparametric conditional probabilities near
 boundaries into zeros. If \code{trimming = TRUE}, then the trimming indicator is extracted from
@@ -41,4 +51,24 @@ a numeric vector of probabilities is given for \code{p.cutoffs}, it will calcula
 marginal effects accordingly to the grouping by quantile values at \code{p.cutoffs}. For example,
 if \code{p.cutoffs = c(1/4, 2/4, 3/4)}, it will return quartile marginal effects over the four
 quartile groups.
+}
+\examples{
+# data generating process
+N <- 1000L
+X1 <- rnorm(N)
+X2 <- (X1 + 2*rnorm(N))/sqrt(5) + 1
+X3 <- rnorm(N)^2/sqrt(2)
+X <- cbind(X1, X2, X3)
+beta <- c(2, 2, -1, -1)
+V <- as.vector(cbind(X, 1)\%*\%beta)
+Y <- ifelse(V >= rnorm(N), 1L, 0L)
+
+# parameter estimation
+qmle <- semiBRM(x = X, y = Y, control = list(iterlim=50))
+
+# average marginal effects of X1
+av_me <- MarginalEffects(qmle, variable = "X1", delta = sd(X1))
+
+# quantile marginal effects of X1
+q_me <- MarginalEffects(qmle, variable = "X1", delta = sd(X1), p.cutoffs = c(1/3, 2/3))
 }

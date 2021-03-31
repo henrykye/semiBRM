@@ -24,3 +24,27 @@ This estimates nonparametrically conditional expectation \code{E[y|x=args]} usin
 the Nadaraya-Watson estimator. If target points \code{args} are not given, it will return
 the leave-one-out version.
 }
+\examples{
+# data generating process
+N <- 500L
+x1 <- stats::rnorm(N)
+x2 <- stats::rnorm(N)
+x3 <- stats::rnorm(N)
+x <- cbind(x1, x2, x3)
+v <- (x1 + x2 + x3)/sqrt(3)
+y <- v + rnorm(N)
+
+# univariate case
+h_u <- stats::sd(v)*N^(-1/5)
+vargs <- stats::quantile(v)
+
+yhat_univ_1 <- GaussianNadarayaWatsonEstimator(v, y, h_u, vargs) # E[y|x=args]
+yhat_univ_2 <- GaussianNadarayaWatsonEstimator(v, y, h_u) # E[y|x], leave-one-out version
+
+# multivariate case
+h_m <- apply(matrix(stats::rnorm(150), 50, 3), 2, stats::sd)*N^(-1/7)
+xargs <- apply(matrix(stats::rnorm(150), 50, 3), 2, stats::quantile)
+
+yhat_multi_1 <- GaussianNadarayaWatsonEstimator(x, y, h_m, xargs)
+yhat_multi_2 <- GaussianNadarayaWatsonEstimator(x, y, h_m)
+}

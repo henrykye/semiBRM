@@ -10,6 +10,7 @@
   boot.se = FALSE,
   ci.level = 0.95,
   nboot = 300L,
+  h = NULL,
   ...
 )
 }
@@ -26,6 +27,9 @@ If \code{boot.se = TRUE}, it calculates standard errors pointwise from semiparam
 
 \item{nboot}{an integer indicating the number of bootstrap replications. This is useful only when
 \code{boot.se = TRUE}.}
+
+\item{h}{a numeric of bandwidth size in the Nadaraya-Watson estimator. If not given, it will use
+the Silverman's rule of thumb bandwidth, \code{h = sd(x)*1.06*N^(-1/5)}.}
 
 \item{...}{further arguments (currently ignored).}
 }

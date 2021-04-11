@@ -19,18 +19,20 @@ semiBRM(x, y, ...)
 
 \item{...}{further arguments in "\code{\link[maxLik:maxLik]{maxLik::maxLik}}" such as \code{control}.}
 
-\item{r}{a numeric number that controls the size of Silverman's rule-of-thumb bandwidth, \code{h = sd(x)*N^(-r)}.}
+\item{r}{a numeric number that controls the size of Silverman's rule-of-thumb bandwidth,
+\code{h = sd(x)*N^(-r)}.}
 
-\item{tau}{a numeric indicating cut-off levels for trimming in \code{\link[=TrimmingIndicator]{TrimmingIndicator}(X,f)},
-which assigns 1L to the values in \code{X} lying between \code{tau}*100 and (1-\code{tau})*100 -th percentiles and 0L to
-those outside this range.}
+\item{tau}{a numeric indicating cut-off levels for trimming in
+\code{\link[=TrimmingIndicator]{TrimmingIndicator}(X,f)}, which assigns 1L to the
+values in \code{X} lying between \code{tau}*100 and (1-\code{tau})*100 -th
+percentiles and 0L to those outside this range.}
 
 \item{formula}{a formula describing the model to be fitted..}
 
 \item{data}{a data.frame containing variables in \code{formula}.}
 }
 \value{
-object of class 'semiBRM' similar to that of 'maxLik'
+object of class 'semiBRM' similar to that of 'maxLik' with elements:
 \itemize{
 \item \code{estimate}: estimated parameter values.
 \item \code{log.likelihood}: log likelihood at the estimates.
@@ -39,7 +41,8 @@ object of class 'semiBRM' similar to that of 'maxLik'
 \item \code{code}: return code as detailed in \code{\link[maxLik:maxLik]{maxLik::maxLik}}.
 \item \code{message}: a short message describing return code.
 \item \code{iter}: the number of iterations performed for numerical optimization.
-\item \code{control}: the optimization control parameters as detailed in \code{\link[maxLik:maxLik]{maxLik::maxLik}}.
+\item \code{control}: the optimization control parameters as detailed in
+\code{\link[maxLik:maxLik]{maxLik::maxLik}}.
 \item \code{model}: the model frame.
 \item \code{r}: the bandwidth parameter for Silverman's rule-of-thumb bandwidth.
 \item \code{trimming.level}: the trimming cutoff level, which is \code{tau} in function argument.
@@ -48,29 +51,50 @@ object of class 'semiBRM' similar to that of 'maxLik'
 }
 }
 \description{
-This implements quasi maximum likelihood estimation using "\code{\link[maxLik:maxLik]{maxLik::maxLik}}"
-to estimate an identifiable  set of parameters. This runs estimation twice, where the first estimation
-is the "pilot" version and the second is the main one with trimming indicator obtained from the "index"
-of the pilot version in place.
+This implements quasi maximum likelihood estimation for parameters in semiparametric binary
+response models.
 }
 \details{
-This is one of the main functions in the pacakge that performs parameter estimation of
+This is the main function in the pacakge that performs parameter estimation of
 semiparametric binary response models. It can take as arguments either matrix \code{x} and
-vector \code{y} or \code{formula} and \code{data} to run estimation (see Examples below).
-An numerical solution will be found usnig BFGS method in \code{\link[maxLik:maxLik]{maxLik::maxLik}}.
+vector \code{y} or \code{formula} and \code{data} to run estimation (see Examples below). The
+default setup is reasonably good so that simply offering \code{x} and \code{y} or
+\code{formula} and \code{data} would be enough in many cases.
 
-The Silverman's rule of thumb bandwidth is put in place for the Nadaraya-Watson estimator. The
-default value is \code{h = sd(x)*1.06*N^(-1/6.01)}, which satisfies conditions for consistency and
-asymptotic normality of the parameter estimator.
+Currently, only a single index model for binary outcome \code{y} is allowed. Importantly,
+the first explanatory variable should be the one whose coefficient is strongly believed to be
+different from zero, as the coefficients of other variables will be rescaled by that
+of the first explanatory variable in estimation. This rescaling is unavoidable
+in semiparametric approaches while it has "no" impact on estimation of conditional probability,
+\code{Pr{y=1|x}}. The parameter estimates are found in quasi maximum likelihood estimation
+using \code{\link[maxLik:maxLik]{maxLik::maxLik}} with BFGS method in place.
 
-The package deploys OpenMP that parallelizes computation of the Nadaraya-Watson estimator.
-The default value of the number of threads is \code{parallel::detectCores()-1L}. To change it
-manually, please use \code{\link{set_num_threads}(x)}. If it's set to be 1L, multithreading will
-not be used.
+The theory in \insertCite{klein1993efficient;textual}{semiBRM} needs a well-defined trimming
+indicator of 'index' that trims out boundary points to ensure a compact support. For it,
+this runs estimation twice, as recommended in the paper, with the first estimation as 'pilot'
+version and with the second one as the primary one. In the pilot version, the initial trimming
+indicator is generated based on the original set of explanatory variables \code{x}, dropping out
+observations near boundaries in any of the explanatory variables \code{x}, where observations
+lying outside \code{[}\code{trimming.level*100}, \code{(1-trimming.level)*100}\verb{]} percentiles are
+considered as being near boundaries, with the default value \code{trimming.level = 0.025}. Then,
+the coefficient estimates of the pilot version are used to form the index, the linear combination
+of explanatory variables with the estimated coefficients from the pilot version. Finally,
+the trimming indicator for the primary version is generated from it at \code{trimming.level} and
+taken to the log-likelihood function for parameter estimation.
+
+The Silverman's rule of thumb bandwidth is put in place for the Nadaraya-Watson estimator, which
+computes conditional probabilities. The bandwidth size is controlled by \code{r} with default value
+\code{r = 6.01}, which satisfies conditions for consistency and asymptotic normality.
+
+The package deploys OpenMP here, parallelizing computation of the Nadaraya-Watson estimator over
+data points. The default value of the number of threads is \code{parallel::detectCores()-1L}.
+To change it manually, please use \code{\link{set_num_threads}(x)}. Note that this affects all
+functions that employ the Nadaraya-Watson estimator in the package. If set to be 1L,
+multithreading will not be used.
 }
 \examples{
 # data generating process
-N <- 1000L
+N <- 500L
 X1 <- rnorm(N)
 X2 <- (X1 + 2*rnorm(N))/sqrt(5) + 1
 X3 <- rnorm(N)^2/sqrt(2)
@@ -89,4 +113,10 @@ qmle0 <- semiBRM(x = X, y = Y, control = list(iterlim=50))
 data <- data.frame(Y, X1, X2, X3)
 qmle1 <- semiBRM(Y~X1+X2+X3, data = data, control = list(iterlim=50))
 
+}
+\references{
+\insertAllCited{}
+}
+\seealso{
+\link{GaussianNadarayaWatsonEstimator}, \link{TrimmingIndicator}
 }

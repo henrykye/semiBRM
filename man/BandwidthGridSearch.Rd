@@ -4,15 +4,22 @@
 \alias{BandwidthGridSearch}
 \title{Bandwidth grid search}
 \usage{
-BandwidthGridSearch(fit, criterion = "McF.R2", n.bandwidth = 50)
+BandwidthGridSearch(
+  fit,
+  criterion = "McF.R2",
+  n.bandwidth = 50,
+  bandwidth = NULL
+)
 }
 \arguments{
 \item{fit}{a fitted 'semiBRM' object.}
 
-\item{criterion}{a character indicating the criterion to be used for evaluation. It can takes
-either "McF.R2", "accuracy", "precision, "aic", or  "bic" (see Details).}
+\item{criterion}{a character indicating the criterion to be used for evaluation. It can be
+one in c("McF.R2", "accuracy", "precision") (see Details).}
 
 \item{n.bandwidth}{an integer of the number of bandwidths to be searched.}
+
+\item{bandwidth}{a vector of bandwidths to be evaluated.}
 }
 \value{
 a list with \code{bandwidth.best}: the best bandwidth found, \code{criterion.value}:
@@ -30,23 +37,19 @@ is obtained from the leave-one-out version of the Gaussian Nadaraya-Watson estim
 This function first randomly generates \code{n.bandwidth} candidates from a uniform distribution
 with range \code{[h0/3, 3*h0]}, where \code{h0} is the Silverman's rule of thumb bandwidth,
 \code{h0 = sd(v)*1.06*N^(-1/5)}. Then, it computes 'performance' according to the given
-\code{criterion} over the condidates and picks up the 'best' one.
+\code{criterion} over the candidates and picks up the 'best' one.
 
 \code{criterion = "McF.R2"} employs the McFadden’s pseudo R-squared for assessment.
 
-For \code{criterion = "accuracy"} or \code{criterion = "precision"}, the function first predcits
+For \code{criterion = "accuracy"} or \code{criterion = "precision"}, the function first predicts
 binary response using the semiparametric conditional probability, assigning 1 if
 the probability is greater than or equal to 0.5 and 0 otherwise. Then, it calculates the
 confusion matrix and predictive accuracy or precision. In turn, the maximizer of the predictive
 accuracy or precision becomes the best bandwidth.
-
-For \code{criterion = "aic"} or \code{criterion = "bic"}, the criterion values are calculated
-from the quasi maximum likelihood at the parameter estimates. And, the minimizer of aic or bic
-becomes the best bandwidth.
 }
 \examples{
 # data generating process
-N <- 1000L
+N <- 500L
 X1 <- rnorm(N)
 X2 <- (X1 + 2*rnorm(N))/sqrt(5) + 1
 X3 <- rnorm(N)^2/sqrt(2)
@@ -60,8 +63,6 @@ qmle <- semiBRM(x = X, y = Y, control = list(iterlim=50))
 
 # bandwidth search
 h1 <- BandwidthGridSearch(qmle)
-h2 <- BandwidthGridSearch(qmle, criterion = "accuracy")
-h3 <- BandwidthGridSearch(qmle, criterion = "precision")
-h4 <- BandwidthGridSearch(qmle, criterion = "aic")
-h5 <- BandwidthGridSearch(qmle, criterion = "bic")
+h2 <- BandwidthGridSearch(qmle, criterion = "accuracy", bandwidth = h1$bandwidth[,1L])
+h3 <- BandwidthGridSearch(qmle, criterion = "precision", bandwidth = h1$bandwidth[,1L])
 }

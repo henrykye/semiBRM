@@ -50,15 +50,21 @@ TrimmingIndicator <- function(x, f)
 
 #' Nadaraya-Watson estimator with Gaussian kernel
 #'
-#' This estimates nonparametrically conditional expectation \code{E[y|x=args]} using
-#' the Nadaraya-Watson estimator. If target points \code{args} are not given, it will return
-#' the leave-one-out version.
+#' This estimates nonparametric conditional expectation \code{E[y|x=args]} using
+#' the Nadaraya-Watson estimator with Gaussian kernel.
 #'
 #' @param x a numeric vector or matrix of explanatory variable(s).
-#' @param y a numeric vector of outcome variable.
+#' @param y a numeric vector of outcome (or dependent) variable.
 #' @param h a numeric vector indicating bandwidth size(s) for each explanatory variable in \code{x}.
 #' @param args a numeric vector or matrix of arguments at which nonparametric conditional
 #' expectations are evaluated.
+#'
+#' @details This is the Nadaraya-Watson estimator taking as arguments data \code{x} and \code{y},
+#' bandwidth \code{h}, and target points \code{args}. If \code{args} are not given, it will return
+#' the leave-one-out version. The dimension of \code{h} should be the same as that of \code{x}, i.e.,
+#' bandwidths need to be separately specified for each explanatory variable. A popular choice of
+#' bandwidth is the Silverman's rule of thumb, \code{h = sd(x)*N^(-1/r)} with \code{r = 4 + q}, where
+#' \code{N} is the sample size and \code{q} is the dimension of \code{x}.
 #'
 #' @return a numeric vector of nonparametric estimates of conditional expectation \code{E[y|x=args]}.
 #' @export
@@ -76,15 +82,15 @@ TrimmingIndicator <- function(x, f)
 #' h_u <- stats::sd(v)*N^(-1/5)
 #' vargs <- stats::quantile(v)
 #'
-#' yhat_univ_1 <- GaussianNadarayaWatsonEstimator(v, y, h_u, vargs) # E[y|x=args]
-#' yhat_univ_2 <- GaussianNadarayaWatsonEstimator(v, y, h_u) # E[y|x], leave-one-out version
+#' yhat_univ_1 <- GaussianNadarayaWatsonEstimator(v, y, h_u, vargs)
+#' yhat_univ_2 <- GaussianNadarayaWatsonEstimator(v, y, h_u) # leave-one-out version
 #'
 #' # multivariate case
 #' h_m <- apply(matrix(stats::rnorm(150), 50, 3), 2, stats::sd)*N^(-1/7)
 #' xargs <- apply(matrix(stats::rnorm(150), 50, 3), 2, stats::quantile)
 #'
 #' yhat_multi_1 <- GaussianNadarayaWatsonEstimator(x, y, h_m, xargs)
-#' yhat_multi_2 <- GaussianNadarayaWatsonEstimator(x, y, h_m)
+#' yhat_multi_2 <- GaussianNadarayaWatsonEstimator(x, y, h_m) # leave-one-out version
 GaussianNadarayaWatsonEstimator <- function(x, y, h, args = NULL)
 {
   stopifnot(is.vector(y))
@@ -148,7 +154,7 @@ GaussianNadarayaWatsonEstimator <- function(x, y, h, args = NULL)
 #' explanatory variable, \code{variable} needs to be either 1L or its name in character.
 #'
 #' @param delta the size of perturbation over which difference of semiparametric conditional
-#' probabilities are computed. Populara choice of \code{delta} would be 1 or standard deviation of
+#' probabilities are computed. Popular choice of \code{delta} would be 1 or standard deviation of
 #' the variable of interest.
 #'
 #' @param p.cutoffs a numeric vector of probabilities (e.g. \code{p.cutoffs = c(1/4, 2/4, 3/4)}).
@@ -162,7 +168,7 @@ GaussianNadarayaWatsonEstimator <- function(x, y, h, args = NULL)
 #'
 #' @details This function is designed to analyze marginal effects of a chosen explanatory variable
 #' over its change by \code{delta}, where marginal effects are defined as difference between the two
-#' semiparametric conditional probabilites evaluated with and without perturbation \code{delta} to
+#' semiparametric conditional probabilities evaluated with and without perturbation \code{delta} to
 #' the variable of interest.
 #'
 #' If \code{p.cutoffs = NULL}, then it will return average marginal effects over data points. If
@@ -268,9 +274,10 @@ MarginalEffects <- function(fit, variable, delta, p.cutoffs = NULL, h = NULL, tr
 #' response model.
 #'
 #' @param fit a fitted 'semiBRM' object.
-#' @param criterion a character indicating the criterion to be used for evaluation. It can takes
-#' either "McF.R2", "accuracy", "precision, "aic", or  "bic" (see Details).
+#' @param criterion a character indicating the criterion to be used for evaluation. It can be
+#' one in c("McF.R2", "accuracy", "precision") (see Details).
 #' @param n.bandwidth an integer of the number of bandwidths to be searched.
+#' @param bandwidth a vector of bandwidths to be evaluated.
 #'
 #' @return a list with \code{bandwidth.best}: the best bandwidth found, \code{criterion.value}:
 #' its criterion value, \code{criterion}: the choice of criterion, and \code{bandwith}:
@@ -282,24 +289,20 @@ MarginalEffects <- function(fit, variable, delta, p.cutoffs = NULL, h = NULL, tr
 #' This function first randomly generates \code{n.bandwidth} candidates from a uniform distribution
 #' with range \code{[h0/3, 3*h0]}, where \code{h0} is the Silverman's rule of thumb bandwidth,
 #' \code{h0 = sd(v)*1.06*N^(-1/5)}. Then, it computes 'performance' according to the given
-#' \code{criterion} over the condidates and picks up the 'best' one.
+#' \code{criterion} over the candidates and picks up the 'best' one.
 #'
 #' \code{criterion = "McF.R2"} employs the McFadden’s pseudo R-squared for assessment.
 #'
-#' For \code{criterion = "accuracy"} or \code{criterion = "precision"}, the function first predcits
+#' For \code{criterion = "accuracy"} or \code{criterion = "precision"}, the function first predicts
 #' binary response using the semiparametric conditional probability, assigning 1 if
 #' the probability is greater than or equal to 0.5 and 0 otherwise. Then, it calculates the
 #' confusion matrix and predictive accuracy or precision. In turn, the maximizer of the predictive
 #' accuracy or precision becomes the best bandwidth.
 #'
-#' For \code{criterion = "aic"} or \code{criterion = "bic"}, the criterion values are calculated
-#' from the quasi maximum likelihood at the parameter estimates. And, the minimizer of aic or bic
-#' becomes the best bandwidth.
-#'
 #' @export
 #' @examples
 #' # data generating process
-#' N <- 1000L
+#' N <- 500L
 #' X1 <- rnorm(N)
 #' X2 <- (X1 + 2*rnorm(N))/sqrt(5) + 1
 #' X3 <- rnorm(N)^2/sqrt(2)
@@ -313,14 +316,12 @@ MarginalEffects <- function(fit, variable, delta, p.cutoffs = NULL, h = NULL, tr
 #'
 #' # bandwidth search
 #' h1 <- BandwidthGridSearch(qmle)
-#' h2 <- BandwidthGridSearch(qmle, criterion = "accuracy")
-#' h3 <- BandwidthGridSearch(qmle, criterion = "precision")
-#' h4 <- BandwidthGridSearch(qmle, criterion = "aic")
-#' h5 <- BandwidthGridSearch(qmle, criterion = "bic")
-BandwidthGridSearch <- function(fit, criterion = "McF.R2", n.bandwidth = 50)
+#' h2 <- BandwidthGridSearch(qmle, criterion = "accuracy", bandwidth = h1$bandwidth[,1L])
+#' h3 <- BandwidthGridSearch(qmle, criterion = "precision", bandwidth = h1$bandwidth[,1L])
+BandwidthGridSearch <- function(fit, criterion = "McF.R2", n.bandwidth = 50, bandwidth = NULL)
 {
   stopifnot(class(fit)=="semiBRM")
-  stopifnot(criterion=="McF.R2"|criterion=="accuracy"|criterion=="precision"|criterion=="aic"|criterion=="bic")
+  stopifnot(criterion=="McF.R2"|criterion=="accuracy"|criterion=="precision")
 
   ## data
   y <- fit$model[,1L]
@@ -337,7 +338,12 @@ BandwidthGridSearch <- function(fit, criterion = "McF.R2", n.bandwidth = 50)
   h2 <- 3*h0
 
   ## scoreboard
-  h_grid <- sort(stats::runif(n.bandwidth, min = h1, max = h2))
+  if (is.null(bandwidth)){
+    h_grid <- sort(stats::runif(n.bandwidth, min = h1, max = h2))
+  }else{
+    h_grid <- bandwidth
+  }
+
   scoreboard <- cbind(h_grid, NaN)
   colnames(scoreboard) <- c("bandwidth", "value")
   rownames(scoreboard) <- seq_len(n.bandwidth)
@@ -359,7 +365,7 @@ BandwidthGridSearch <- function(fit, criterion = "McF.R2", n.bandwidth = 50)
       scoreboard[i,2L] <- mcfr2
     }
 
-  }else  if ( criterion == "accuracy" ){
+  }else if ( criterion == "accuracy" ){
 
     for (i in seq_along(h_grid)){
 
@@ -376,7 +382,7 @@ BandwidthGridSearch <- function(fit, criterion = "McF.R2", n.bandwidth = 50)
       scoreboard[i,2L] <- accuracy
     }
 
-  }else if ( criterion == "precision" ){
+  }else {
 
     for (i in seq_along(h_grid)){
 
@@ -392,46 +398,9 @@ BandwidthGridSearch <- function(fit, criterion = "McF.R2", n.bandwidth = 50)
       precision <- conf_mat[2L,2L] / sum(conf_mat[,2L])
       scoreboard[i,2L] <- precision
     }
-
-  }else if ( criterion == "aic" ){
-
-    for (i in seq_along(h_grid)){
-
-      h <- h_grid[i]
-      prob <- GaussianNadarayaWatsonEstimator(v, y, h)
-
-      prob_ <- prob[trimming_indicator == 1L]
-      y_ <- y[trimming_indicator == 1L]
-
-      logLik <- sum(log( c(prob_[y_ == 1L], 1-prob_[y_ == 0L]) ))
-
-      aic <- 2*k - 2*logLik
-      scoreboard[i,2L] <- aic
-    }
-
-  }else{
-
-    for (i in seq_along(h_grid)){
-
-      h <- h_grid[i]
-      prob <- GaussianNadarayaWatsonEstimator(v, y, h)
-
-      prob_ <- prob[trimming_indicator == 1L]
-      y_ <- y[trimming_indicator == 1L]
-
-      logLik <- sum(log( c(prob_[y_ == 1L], 1-prob_[y_ == 0L]) ))
-
-      bic <- k*log(n) - 2*logLik
-      scoreboard[i,2L] <- bic
-    }
-
   }
 
-  if ( criterion == "McF.R2" | criterion == "accuracy" | criterion == "precision" ){
-    h_best <- scoreboard[order(scoreboard[,2L], decreasing = TRUE),][1L,]
-  }else{
-    h_best <- scoreboard[order(scoreboard[,2L]),][1L,]
-  }
+  h_best <- scoreboard[order(scoreboard[,2L], decreasing = TRUE),][1L,]
 
   list(bandwidth.best = h_best[1L],
        criterion.value = h_best[2L],

@@ -9,7 +9,7 @@ GaussianNadarayaWatsonEstimator(x, y, h, args = NULL)
 \arguments{
 \item{x}{a numeric vector or matrix of explanatory variable(s).}
 
-\item{y}{a numeric vector of outcome variable.}
+\item{y}{a numeric vector of outcome (or dependent) variable.}
 
 \item{h}{a numeric vector indicating bandwidth size(s) for each explanatory variable in \code{x}.}
 
@@ -20,9 +20,16 @@ expectations are evaluated.}
 a numeric vector of nonparametric estimates of conditional expectation \code{E[y|x=args]}.
 }
 \description{
-This estimates nonparametrically conditional expectation \code{E[y|x=args]} using
-the Nadaraya-Watson estimator. If target points \code{args} are not given, it will return
-the leave-one-out version.
+This estimates nonparametric conditional expectation \code{E[y|x=args]} using
+the Nadaraya-Watson estimator with Gaussian kernel.
+}
+\details{
+This is the Nadaraya-Watson estimator taking as arguments data \code{x} and \code{y},
+bandwidth \code{h}, and target points \code{args}. If \code{args} are not given, it will return
+the leave-one-out version. The dimension of \code{h} should be the same as that of \code{x}, i.e.,
+bandwidths need to be separately specified for each explanatory variable. A popular choice of
+bandwidth is the Silverman's rule of thumb, \code{h = sd(x)*N^(-1/r)} with \code{r = 4 + q}, where
+\code{N} is the sample size and \code{q} is the dimension of \code{x}.
 }
 \examples{
 # data generating process
@@ -38,13 +45,13 @@ y <- v + rnorm(N)
 h_u <- stats::sd(v)*N^(-1/5)
 vargs <- stats::quantile(v)
 
-yhat_univ_1 <- GaussianNadarayaWatsonEstimator(v, y, h_u, vargs) # E[y|x=args]
-yhat_univ_2 <- GaussianNadarayaWatsonEstimator(v, y, h_u) # E[y|x], leave-one-out version
+yhat_univ_1 <- GaussianNadarayaWatsonEstimator(v, y, h_u, vargs)
+yhat_univ_2 <- GaussianNadarayaWatsonEstimator(v, y, h_u) # leave-one-out version
 
 # multivariate case
 h_m <- apply(matrix(stats::rnorm(150), 50, 3), 2, stats::sd)*N^(-1/7)
 xargs <- apply(matrix(stats::rnorm(150), 50, 3), 2, stats::quantile)
 
 yhat_multi_1 <- GaussianNadarayaWatsonEstimator(x, y, h_m, xargs)
-yhat_multi_2 <- GaussianNadarayaWatsonEstimator(x, y, h_m)
+yhat_multi_2 <- GaussianNadarayaWatsonEstimator(x, y, h_m) # leave-one-out version
 }

@@ -13,7 +13,7 @@ This package offers an implementation of semiparametric binary response models, 
 a seminal work in the semiparametric econometrics literature, \insertCite{klein1993efficient;textual}{semiBRM}.
 
 Compared to other related packages that help run non-/semi-parametric analysis,
-this relfects the econometrician's perspective to the best, taking conditions
+this reflects the econometrician's perspective to the best, taking conditions
 for asymptotic properties seriously. For instance, the default choice of bandwidth size in
 the Nadaraya-Watson estimator meets the conditions for square-root N consistency of the coefficient
 estimator.

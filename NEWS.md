@@ -1,3 +1,5 @@
 # semiBRM 0.0.1
 
-* Added a `NEWS.md` file to track changes to the package.
+## The 1st release to CRAN
+
+* This offers a general framework to implement semiparametric binary response models in R.

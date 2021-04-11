@@ -21,7 +21,7 @@ character of its name. For example, to compute marginal effects of the first
 explanatory variable, \code{variable} needs to be either 1L or its name in character.}
 
 \item{delta}{the size of perturbation over which difference of semiparametric conditional
-probabilities are computed. Populara choice of \code{delta} would be 1 or standard deviation of
+probabilities are computed. Popular choice of \code{delta} would be 1 or standard deviation of
 the variable of interest.}
 
 \item{p.cutoffs}{a numeric vector of probabilities (e.g. \code{p.cutoffs = c(1/4, 2/4, 3/4)}).}
@@ -43,7 +43,7 @@ as difference of semiparametric conditional probabilities.
 \details{
 This function is designed to analyze marginal effects of a chosen explanatory variable
 over its change by \code{delta}, where marginal effects are defined as difference between the two
-semiparametric conditional probabilites evaluated with and without perturbation \code{delta} to
+semiparametric conditional probabilities evaluated with and without perturbation \code{delta} to
 the variable of interest.
 
 If \code{p.cutoffs = NULL}, then it will return average marginal effects over data points. If

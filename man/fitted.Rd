@@ -4,10 +4,13 @@
 \alias{fitted.semiBRM}
 \title{Predict in-sample semiparametric conditional probability}
 \usage{
-\method{fitted}{semiBRM}(object, ...)
+\method{fitted}{semiBRM}(object, h = NULL, ...)
 }
 \arguments{
 \item{object}{a fitted 'semiBRM' object.}
+
+\item{h}{a numeric of bandwidth size in the Nadaraya-Watson estimator. If not given, it will use
+the Silverman's rule of thumb bandwidth, \code{h = sd(x)*1.06*N^(-1/5)}.}
 
 \item{...}{further arguments (currently ignored).}
 }

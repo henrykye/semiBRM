@@ -23,17 +23,9 @@ of \code{x} lies between f*100 and (1-f)*100 -th percentiles, i.e.,
 an interior point, and 0L otherwise.
 }
 \examples{
-n <- 1000L
+n <- 500L
 x <- rnorm(n)
 f <- 0.025
 
-# construct a trimming indicator by hand
-ti0 <- integer(n)
-ti0[x > quantile(x, f) & x < quantile(x, 1-f)] <- 1L
-
-# use the Trimming Indicator function
-ti1 <- TrimmingIndicator(x, f)
-
-# compare outcome
-all.equal(ti0, ti1) # TRUE
+trimming <- TrimmingIndicator(x, f)
 }

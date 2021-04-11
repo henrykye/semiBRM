@@ -1,6 +1,6 @@
 # setup ---------------------------------------------------------------------------------------
 library(semiBRM)
-set.seed(20190815)
+set.seed(20190815) # for reproduction of results
 
 # data generating process ----------------------------------------------------------------------
 
@@ -21,11 +21,11 @@ coefs_true <- c(1, -.5)
 data <- data.frame(Y, X1, X2, X3)
 
 ## Klein and Spady (1993): semiparametric approach
-semi <- semiBRM(Y~X1+X2+X3, data = data, control = list(iterlim=50))
+semi <- semiBRM(Y ~ X1 + X2 + X3, data = data, control = list(iterlim=50))
 coefs_semi <- coef(semi)
 
 ## Probit: parametric approach
-probit <- glm(Y ~ X1+X2+X3, family = binomial(link = "probit"), data = data)
+probit <- glm(Y ~ X1 + X2 + X3, family = binomial(link = "probit"), data = data)
 coefs_probit <- probit$coefficients[-1L][-1L]/probit$coefficients[-1L][1L]
 
 ## formatted print
@@ -34,7 +34,6 @@ coefs_probit <- probit$coefficients[-1L][-1L]/probit$coefficients[-1L][1L]
     cat(sprintf("parm 1: %7.4f %7.4f %7.4f\n", coefs_true[1L], coefs_probit[1L], coefs_semi[1L]))
     cat(sprintf("parm 2: %7.4f %7.4f %7.4f\n", coefs_true[2L], coefs_probit[2L], coefs_semi[2L]))
 }
-
 
 
 # in-sample prediction ------------------------------------------------------------------------

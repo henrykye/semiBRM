@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# semiBRM: Semiparametric Binary Response Model in R
+# semiBRM: Semiparametric Binary Response Models in R
 
 This **R** package **semiBRM** offers an implementation of single-index semiparametric binary response
 models, theorized in a seminal work in the semiparametric econometrics literature

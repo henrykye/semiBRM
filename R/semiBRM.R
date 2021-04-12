@@ -3,7 +3,7 @@ NULL
 #> NULL
 
 
-#' Semiparametric Binary Response Model
+#' Semiparametric Binary Response Models in R
 #'
 #' Implementation of semiparametric binary response models theorized in
 #' \insertCite{klein1993efficient;textual}{semiBRM}.
@@ -36,7 +36,7 @@ NULL
 #' asymptotics no longer requires the use of 'higher-order' kernel in the Nadaraya-Watson estimator,
 #' which was asked in the original paper.
 #'
-#' @author Hyungil Kye (Henry) `<`\email{hkye@@economics.rutgers.edu}`>`
+#' @author Hyungil Kye (Henry) `<`\email{henrykye301@@gmail.com}`>`
 #'
 #' @references
 #' \insertAllCited{}

@@ -3,7 +3,7 @@
 \docType{package}
 \name{semiBRM-package}
 \alias{semiBRM-package}
-\title{Semiparametric Binary Response Model}
+\title{Semiparametric Binary Response Models in R}
 \description{
 Implementation of semiparametric binary response models theorized in
 \insertCite{klein1993efficient;textual}{semiBRM}.
@@ -40,5 +40,5 @@ which was asked in the original paper.
 \insertAllCited{}
 }
 \author{
-Hyungil Kye (Henry) \code{<}\email{hkye@economics.rutgers.edu}\code{>}
+Hyungil Kye (Henry) \code{<}\email{henrykye301@gmail.com}\code{>}
 }

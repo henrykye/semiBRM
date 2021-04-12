@@ -5,7 +5,7 @@ Authors@R:
     person(given = "Hyungil",
            family = "Kye",
            role = c("aut", "cre"),
-           email = "hkye@economics.rutgers.edu")
+           email = "henrykye301@gmail.com")
 Description: This implements a single-index semiparametric approach to binary
     response models theorized in Klein and Spady (1993). This is built upon Rcpp
     along with OpenMP that parallelizes computation of nonparametric conditional
@@ -28,7 +28,6 @@ Imports:
 RdMacros: 
     Rdpack
 Suggests: 
-    spelling,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Language: en-US

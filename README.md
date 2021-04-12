@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# semiBRM: Semiparametric Binary Response Model in R
+# semiBRM: Semiparametric Binary Response Models in R
 
 This **R** package **semiBRM** offers an implementation of single-index
 semiparametric binary response models, theorized in a seminal work in

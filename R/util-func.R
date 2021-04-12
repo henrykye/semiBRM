@@ -145,8 +145,8 @@ GaussianNadarayaWatsonEstimator <- function(x, y, h, args = NULL)
 
 #' Marginal effects
 #'
-#' This computes marginal effects with respect to a chosen explanatory variable
-#' as difference of semiparametric conditional probabilities.
+#' This computes marginal effects for a small change in a chosen continuous explanatory
+#' variable as difference of semiparametric conditional probabilities.
 #'
 #' @param fit a fitted 'semiBRM' object.
 #' @param variable an integer indicating the position of the explanatory variable of interest or
@@ -169,7 +169,7 @@ GaussianNadarayaWatsonEstimator <- function(x, y, h, args = NULL)
 #' @details This function is designed to analyze marginal effects of a chosen explanatory variable
 #' over its change by \code{delta}, where marginal effects are defined as difference between the two
 #' semiparametric conditional probabilities evaluated with and without perturbation \code{delta} to
-#' the variable of interest.
+#' the variable of interest. Notice that this is designed for a continuous variable in \code{x}.
 #'
 #' If \code{p.cutoffs = NULL}, then it will return average marginal effects over data points. If
 #' a numeric vector of probabilities is given for \code{p.cutoffs}, it will calculate quantile

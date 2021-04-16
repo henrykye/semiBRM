@@ -2,34 +2,34 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 .GaussianMultivar <- function(Y, X, args, H) {
-    .Call(`_semiBRM_GaussianMultivar`, Y, X, args, H)
+    .Call('_semiBRM_GaussianMultivar', PACKAGE = 'semiBRM', Y, X, args, H)
 }
 
 .GaussianMultivarOMP <- function(Y, X, args, H, n_cores = 3L) {
-    .Call(`_semiBRM_GaussianMultivarOMP`, Y, X, args, H, n_cores)
+    .Call('_semiBRM_GaussianMultivarOMP', PACKAGE = 'semiBRM', Y, X, args, H, n_cores)
 }
 
 .GaussianMultivarLeaveOneOut <- function(Y, X, H) {
-    .Call(`_semiBRM_GaussianMultivarLeaveOneOut`, Y, X, H)
+    .Call('_semiBRM_GaussianMultivarLeaveOneOut', PACKAGE = 'semiBRM', Y, X, H)
 }
 
 .GaussianMultivarLeaveOneOutOMP <- function(Y, X, H, n_cores = 3L) {
-    .Call(`_semiBRM_GaussianMultivarLeaveOneOutOMP`, Y, X, H, n_cores)
+    .Call('_semiBRM_GaussianMultivarLeaveOneOutOMP', PACKAGE = 'semiBRM', Y, X, H, n_cores)
 }
 
 .GaussianUnivar <- function(Y, X, args, H) {
-    .Call(`_semiBRM_GaussianUnivar`, Y, X, args, H)
+    .Call('_semiBRM_GaussianUnivar', PACKAGE = 'semiBRM', Y, X, args, H)
 }
 
 .GaussianUnivarOMP <- function(Y, X, args, H, n_cores = 3L) {
-    .Call(`_semiBRM_GaussianUnivarOMP`, Y, X, args, H, n_cores)
+    .Call('_semiBRM_GaussianUnivarOMP', PACKAGE = 'semiBRM', Y, X, args, H, n_cores)
 }
 
 .GaussianUnivarLeaveOneOut <- function(Y, X, H) {
-    .Call(`_semiBRM_GaussianUnivarLeaveOneOut`, Y, X, H)
+    .Call('_semiBRM_GaussianUnivarLeaveOneOut', PACKAGE = 'semiBRM', Y, X, H)
 }
 
 .GaussianUnivarLeaveOneOutOMP <- function(Y, X, H, n_cores = 3L) {
-    .Call(`_semiBRM_GaussianUnivarLeaveOneOutOMP`, Y, X, H, n_cores)
+    .Call('_semiBRM_GaussianUnivarLeaveOneOutOMP', PACKAGE = 'semiBRM', Y, X, H, n_cores)
 }
 

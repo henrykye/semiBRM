@@ -270,7 +270,7 @@ MarginalEffects <- function(fit, variable, delta, p.cutoffs = NULL, h = NULL, tr
 
 #' Bandwidth grid search
 #'
-#' This performs grid search to find the best bandwidth for the fitted semiparmetric binary
+#' This performs grid search to find the best bandwidth for the fitted semiparametric binary
 #' response model.
 #'
 #' @param fit a fitted 'semiBRM' object.

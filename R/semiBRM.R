@@ -77,6 +77,8 @@ get_num_threads <- function()
     .pkgglobalenv$num.threads
 }
 
+#' @export
+semiBRM <- function(x, ...) UseMethod("semiBRM")
 
 #' Semiparametric binary response model: Parameter estimation
 #'
@@ -175,17 +177,12 @@ get_num_threads <- function()
 #' ests_true <- c(1, -.5)
 #'
 #' # using matrix/vector
-#' qmle0 <- semiBRM(x = X, y = Y, control = list(iterlim=50))
+#' qmle0 <- semiBRM(x = X, y = Y, control = list(iterlim = 50))
 #'
 #' # using formula and data
 #' data <- data.frame(Y, X1, X2, X3)
-#' qmle1 <- semiBRM(Y~X1+X2+X3, data = data, control = list(iterlim=50))
+#' qmle1 <- semiBRM(Y ~ X1 + X2 + X3, data = data, control = list(iterlim = 50))
 #'
-#' @export
-semiBRM <- function(x, y, ...) UseMethod("semiBRM")
-
-
-#' @rdname semiBRM
 #' @export
 semiBRM.default <- function(x, y, r = 1/6.01, tau = 0.025, ...)
 {

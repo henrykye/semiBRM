@@ -27,7 +27,7 @@ its criterion value, \code{criterion}: the choice of criterion, and \code{bandwi
 the scoreboard for candidates.
 }
 \description{
-This performs grid search to find the best bandwidth for the fitted semiparmetric binary
+This performs grid search to find the best bandwidth for the fitted semiparametric binary
 response model.
 }
 \details{

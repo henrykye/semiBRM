@@ -6,8 +6,6 @@
 \alias{semiBRM.formula}
 \title{Semiparametric binary response model: Parameter estimation}
 \usage{
-semiBRM(x, y, ...)
-
 \method{semiBRM}{default}(x, y, r = 1/6.01, tau = 0.025, ...)
 
 \method{semiBRM}{formula}(formula, data, r = 1/6.01, tau = 0.025, ...)
@@ -17,8 +15,6 @@ semiBRM(x, y, ...)
 
 \item{y}{a vector of integer, numeric, or factor of binary response outcomes, taking either 1 or 0 only.}
 
-\item{...}{further arguments in "\code{\link[maxLik:maxLik]{maxLik::maxLik}}" such as \code{control}.}
-
 \item{r}{a numeric number that controls the size of Silverman's rule-of-thumb bandwidth,
 \code{h = sd(x)*N^(-r)}.}
 
@@ -26,6 +22,8 @@ semiBRM(x, y, ...)
 \code{\link[=TrimmingIndicator]{TrimmingIndicator}(X,f)}, which assigns 1L to the
 values in \code{X} lying between \code{tau}*100 and (1-\code{tau})*100 -th
 percentiles and 0L to those outside this range.}
+
+\item{...}{further arguments in "\code{\link[maxLik:maxLik]{maxLik::maxLik}}" such as \code{control}.}
 
 \item{formula}{a formula describing the model to be fitted..}
 
@@ -107,11 +105,11 @@ Y <- ifelse(V >= rnorm(N), 1L, 0L)
 ests_true <- c(1, -.5)
 
 # using matrix/vector
-qmle0 <- semiBRM(x = X, y = Y, control = list(iterlim=50))
+qmle0 <- semiBRM(x = X, y = Y, control = list(iterlim = 50))
 
 # using formula and data
 data <- data.frame(Y, X1, X2, X3)
-qmle1 <- semiBRM(Y~X1+X2+X3, data = data, control = list(iterlim=50))
+qmle1 <- semiBRM(Y ~ X1 + X2 + X3, data = data, control = list(iterlim = 50))
 
 }
 \references{

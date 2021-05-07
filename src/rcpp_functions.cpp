@@ -32,7 +32,7 @@ inline double GaussianMultivarAtOnePoint
 	return arma::sum( Y%w ) / arma::sum( w );
 }
 
-// Multivariate nonparametric estimator 
+// Multivariate nonparametric estimator
 // [[Rcpp::export(.GaussianMultivar)]]
 Rcpp::NumericVector GaussianMultivar
 (const arma::vec& Y, const arma::mat& X, const arma::mat& args, arma::rowvec H)
@@ -72,14 +72,20 @@ Rcpp::NumericVector GaussianMultivarOMP
 		return Rcpp::NumericVector::create(NA_REAL);
 	}
 
-	// multi-threading
 	arma::uword Nargs = args.n_rows, i;
 	std::vector< double > ce(Nargs); // output bin
-	omp_set_num_threads(n_cores);
-	#pragma omp parallel for default(none) shared(Nargs, Y, X, args, H, ce) private(i)
-	for ( i = 0; i < Nargs; i++ ){
-		ce[i] = GaussianMultivarAtOnePoint(Y, X, args.row(i), H);
-	}
+
+    #ifdef _OPENMP
+	    omp_set_num_threads(n_cores);
+        #pragma omp parallel for default(none) shared(Nargs, Y, X, args, H, ce) private(i)
+	    for ( i = 0; i < Nargs; i++ ){
+	        ce[i] = GaussianMultivarAtOnePoint(Y, X, args.row(i), H);
+	    }
+    #else
+	    for ( i = 0; i < Nargs; i++ ){
+	        ce[i] = GaussianMultivarAtOnePoint(Y, X, args.row(i), H);
+	    }
+    #endif
 
 	return Rcpp::wrap(ce);
 }
@@ -125,15 +131,22 @@ Rcpp::NumericVector GaussianMultivarLeaveOneOutOMP
 		return Rcpp::NumericVector::create(NA_REAL);
 	}
 
-	// multi-threading
 	arma::uword Nargs = X.n_rows, i;
 	std::vector< double > ce(Nargs); // output bin
-	omp_set_num_threads(n_cores);
-	#pragma omp parallel for default(none) shared(Nargs, Y, X, H, ce) private(i)
-	for ( i  = 0; i < Nargs; i++ ){
-		arma::uvec j = getAntiIndices(Nargs, i);
-		ce[i] = GaussianMultivarAtOnePoint(Y.rows(j), X.rows(j), X.row(i), H);
-	}
+
+    #ifdef _OPENMP
+	    omp_set_num_threads(n_cores);
+        #pragma omp parallel for default(none) shared(Nargs, Y, X, H, ce) private(i)
+        for ( i  = 0; i < Nargs; i++ ){
+            arma::uvec j = getAntiIndices(Nargs, i);
+            ce[i] = GaussianMultivarAtOnePoint(Y.rows(j), X.rows(j), X.row(i), H);
+        }
+    #else
+        for ( i  = 0; i < Nargs; i++ ){
+            arma::uvec j = getAntiIndices(Nargs, i);
+            ce[i] = GaussianMultivarAtOnePoint(Y.rows(j), X.rows(j), X.row(i), H);
+        }
+    #endif
 
 	return Rcpp::wrap(ce);
 }
@@ -189,14 +202,20 @@ Rcpp::NumericVector GaussianUnivarOMP
 		return Rcpp::NumericVector::create(NA_REAL);
 	}
 
-	// multi-threading
 	arma::uword Nargs = args.n_rows, i;
 	std::vector< double > ce(Nargs); // output bin
-	omp_set_num_threads(n_cores);
-	#pragma omp parallel for default(none) shared(Nargs, Y, X, args, H, ce) private(i)
-	for ( i  = 0; i < Nargs; i++ ){
-		ce[i] = GaussianUnivarAtOnePoint(Y, X, args[i], H);
-	}
+
+    #ifdef _OPENMP
+	    omp_set_num_threads(n_cores);
+        #pragma omp parallel for default(none) shared(Nargs, Y, X, args, H, ce) private(i)
+	    for ( i  = 0; i < Nargs; i++ ){
+	        ce[i] = GaussianUnivarAtOnePoint(Y, X, args[i], H);
+	    }
+    #else
+    	for ( i  = 0; i < Nargs; i++ ){
+    	    ce[i] = GaussianUnivarAtOnePoint(Y, X, args[i], H);
+    	}
+    #endif
 
 	return Rcpp::wrap(ce);
 }
@@ -242,15 +261,22 @@ Rcpp::NumericVector GaussianUnivarLeaveOneOutOMP
 		return Rcpp::NumericVector::create(NA_REAL);
 	}
 
-	// multi-threading
 	arma::uword Nargs = X.n_rows, i;
 	std::vector< double > ce(Nargs); // output bin
-	omp_set_num_threads(n_cores);
-	#pragma omp parallel for default(none) shared(Nargs, Y, X, H, ce) private(i)
-	for ( i = 0; i < Nargs; i++ ){
-		arma::uvec j = getAntiIndices(Nargs, i);
-		ce[i] = GaussianUnivarAtOnePoint(Y.rows(j), X.rows(j), X[i], H);
-	}
+
+    #ifdef _OPENMP
+	    omp_set_num_threads(n_cores);
+        #pragma omp parallel for default(none) shared(Nargs, Y, X, H, ce) private(i)
+	    for ( i = 0; i < Nargs; i++ ){
+	        arma::uvec j = getAntiIndices(Nargs, i);
+	        ce[i] = GaussianUnivarAtOnePoint(Y.rows(j), X.rows(j), X[i], H);
+	    }
+    #else
+	    for ( i = 0; i < Nargs; i++ ){
+	        arma::uvec j = getAntiIndices(Nargs, i);
+	        ce[i] = GaussianUnivarAtOnePoint(Y.rows(j), X.rows(j), X[i], H);
+	    }
+    #endif
 
 	return Rcpp::wrap(ce);
 }

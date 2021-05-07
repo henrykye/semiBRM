@@ -6,3 +6,4 @@
 ^MonteCarlo\.R$
 ^\.Rprofile$
 ^reading$
+^cran-comments\.md$

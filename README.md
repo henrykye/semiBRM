@@ -39,7 +39,7 @@ The development version can be installed from GitHub:
 
 ``` r
 library(devtools)
-install_github(repo="hk599/semiBRM")
+install_github(repo="henrykye/semiBRM")
 ```
 
 ### This version was built with:

@@ -10,8 +10,8 @@ Description: This implements a semiparametric approach to binary
     response models theorized in Klein and Spady (1993). This is built upon Rcpp
     along with OpenMP that parallelizes computation of nonparametric conditional
     expectations.
-URL: https://github.com/hk599/semiBRM
-BugReports: https://github.com/hk599/semiBRM/issues
+URL: https://github.com/henrykye/semiBRM
+BugReports: https://github.com/henrykye/semiBRM/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
